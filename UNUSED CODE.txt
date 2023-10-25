@@ -1,0 +1,47 @@
+# UNUSED CODE
+#! This file is used to run code in a docker container
+            elif (function_name == "run_python_code_in_docker"):
+                now = datetime.now()
+                filename = f'code_{conversation_id}_{now.strftime("%Y%m%d_%H%M%S")}.py'
+
+                sanitized_arguments = re.sub(r'\\n', '\\\\n', function_arguments)
+                sanitized_arguments = re.sub(r'\\t', '\\\\t', sanitized_arguments)
+
+                try:
+                    function_arguments_dict = json.loads(sanitized_arguments)
+                except json.JSONDecodeError as e:
+                    print(f"JSONDecodeError: {e}")
+                    await update_conversation_and_send_to_discord("The JSON arguments provided were invalid.", function_name, temp_message, conversation, conversation_id, message)
+                    set_bot_busy(conversation_id, False)
+                    return
+
+                code = function_arguments_dict.get("code")
+
+                temp_message_text = "Running some code for you, please wait..."
+                await edit_message_text(temp_message, temp_message_text)
+
+                # code_interpreter_output, host_image_path = run_code_in_docker(code)
+                print(code_interpreter_output)
+
+                with open(filename, 'w') as f:
+                
+                    f.write('# Here is the code I generated:\n')
+                    f.write(code + '\n')
+
+                    if 'matplotlib' in code:
+                      f.write('\n# Output: \nA plot was saved to /tmp')
+                    else:  
+                      f.write('\n# Output: \n' + code_interpreter_output)
+
+                # await message.channel.send(file=discord.File(filename))
+                function_response = "The code that was executed was: " + code + " and the output is: " + code_interpreter_output
+                print(function_response)
+
+                await update_conversation_and_send_to_discord(function_response, function_name, temp_message, conversation, conversation_id, message)
+                if host_image_path:
+                    await message.channel.send(file=discord.File(host_image_path))
+                    os.remove(host_image_path)# Remove the image file from the host system if needed
+                # send the code file to the user
+                await message.channel.send(file=discord.File(filename))
+                set_bot_busy(conversation_id, False)
+                os.remove(filename)# Remove the code file from the host system if needed
