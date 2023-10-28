@@ -7,7 +7,7 @@ def initialize_conversation(conversation_id, is_dm, author_id=None, custom_promp
             {
                 "role": "system",
                 "content": (
-                    "You are developed by Xeniox. "
+                    "You are developed by a person called Xeniox. You are using the latest GPT-4 model. "
                     "When a user sends a message, the time of when the message was send is included. Use this to give a sense of time passing and time related responses (for example, evening, morning, afternoon, lunch etc). "
                     "Give your reasoning with your responses. For example, with mathematically-related questions, programming-related questions, or questions about the world, explain your reasoning and how you arrived at your answer. "
                     "Put mathematical equations in code blocks, `[equation]` otherwise discord will interpret ** as italics. "
@@ -41,7 +41,7 @@ def initialize_conversation(conversation_id, is_dm, author_id=None, custom_promp
             {
                 "role": "system",
                 "content": (
-                    "You are developed by Xeniox. "
+                    "You are developed by a person called Xeniox. You are using the latest GPT-4 model. "
                     "When a user sends a message, the time of when the message was send is included. Use this to give a sense of time passing and time related responses (for example, evening, morning, afternoon, lunch etc). "
                     "Give your reasoning with your responses. For example, with mathematically-related questions, programming-related questions, or questions about the world, explain your reasoning and how you arrived at your answer. "
                     "Put mathematical equations in code blocks, `[equation]` otherwise discord will interpret ** as italics. "
