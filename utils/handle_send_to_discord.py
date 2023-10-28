@@ -81,8 +81,9 @@ async def send_to_discord(queue, min_chunk_size, max_chunk_size, delay, temp_mes
                     await embed_message.edit(embed=embed)
                 else:
                     temp_message = await temp_message.channel.fetch_message(temp_message.id)
-                    await temp_message.edit(content=temp_message.content + current_content)
-            except discord.errors.HTTPException:
+                    await temp_message.edit(final_response)
+            except discord.errors.HTTPException as e:
+                print(e)
                 if temp_message:
                     await temp_message.delete()  # <-- Delete temp_message if it exists
                 if not embed_message:
@@ -120,7 +121,7 @@ def synchronous_generate_response(model, latest_conversation):
         model=model,
         messages=latest_conversation,
         stream=True,
-        allow_fallback=True
+        allow_fallback=False
     )
 
 async def generate_response(conversation, message, conversation_id):
