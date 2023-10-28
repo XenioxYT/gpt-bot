@@ -33,21 +33,38 @@ async def generate_images(prompt, num_images=1):
     original_num_images = num_images
     for model in model_list:
         num_images = original_num_images
-        if model == "midjourney":
-            num_images = 4
-        try:
-            # Make synchronous call in a thread
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                image_response = await loop.run_in_executor(pool, synchronous_image_create, model, prompt, num_images)
+        retries = 0
+        while retries < MAX_RETRIES:
+            try:
+                if model == "midjourney":
+                    num_images = 4
+                
+                # Make synchronous call in a thread
+                with concurrent.futures.ThreadPoolExecutor() as pool:
+                    image_response = await loop.run_in_executor(pool, synchronous_image_create, model, prompt, num_images)
+                
+                for entry in image_response["data"]:
+                    urls.append(entry["url"])
+                
+                print(f"Images generated with model {model}")
+                return urls, image_response  # Successfully generated images, so return the URLs
             
-            for entry in image_response["data"]:
-                urls.append(entry["url"])
+            except openai.error.Timeout:
+                print(f"Request timed out for model {model}. Retrying... ({retries + 1}/{MAX_RETRIES})")
+                retries += 1
+                time.sleep(RETRY_DELAY)  # Wait before retrying
+                
+            except (openai.error.InvalidRequestError, openai.error.PermissionError) as e:
+                print(f"An error occurred while using model {model}: {str(e)}")
+                break  # If it's not a timeout error, no need to retry, just go to the next model
             
-            print(f"Images generated with model {model}")
-            return urls, image_response  # Successfully generated images, so return the URLs
-        except (openai.error.InvalidRequestError, openai.error.PermissionError) as e:
-            print(f"An error occurred while using model {model}: {str(e)}")
-            continue  # Skip to the next iteration and try with the next model
+            except openai.error.APIError as e:
+                print(f"An error occurred while using model {model}: {str(e)}")
+                retries += 1
+                time.sleep(RETRY_DELAY)
+
+        if retries == MAX_RETRIES:
+            print(f"Failed to generate images with model {model} after {MAX_RETRIES} attempts.")
     
     return None, "Unable to generate images with any model"  # Return an error if no models work
 
