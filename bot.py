@@ -37,6 +37,7 @@ from utils.generate_image import generate_images
 from utils.moderate_message import moderate_content
 from utils.wolfram_alpha import query_wolfram_alpha
 from utils.get_and_set_timezone import set_timezone
+from utils.format_message import format_message
 
 # get from environment variables
 load_dotenv()
@@ -168,7 +169,9 @@ class MyClient(discord.Client):
         else:
             content = message.content
 
-        new_message = {"role": "user", "content": content.strip()}
+        formatted_message = format_message(message.author.id, message.author.name, content.strip())
+
+        new_message = {"role": "user", "content": formatted_message}
         conversation.append(new_message)
         store_conversation(conversation_id, conversation)
 
