@@ -8,6 +8,7 @@ import base64
 from PIL import Image
 import concurrent.futures
 import asyncio
+import time
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
