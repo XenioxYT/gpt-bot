@@ -13,6 +13,9 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_base = os.getenv("OPENAI_API_BASE")
 
+MAX_RETRIES = 1
+RETRY_DELAY = 0.2  # In seconds
+
 def synchronous_image_create(model, prompt, num_images):
     return openai.Image.create(
         model=model,
