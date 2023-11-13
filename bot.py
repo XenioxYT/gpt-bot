@@ -326,11 +326,11 @@ class MyClient(discord.Client):
                         # print("Final reponse:" + repr(temp_message.content))
                     # check if response is function call
                     try:
-                        if chunk["choices"][0]["delta"].get("function_call"):
-                            if "name" in chunk["choices"][0]["delta"]["function_call"]:
-                                function_name = chunk["choices"][0]["delta"]["function_call"]["name"]
+                        if chunk["choices"][0]["delta"].get("tool_call"):
+                            if "name" in chunk["choices"][0]["delta"]["tool_call"]:
+                                function_name = chunk["choices"][0]["delta"]["tool_call"]["name"]
                             chunk = chunk["choices"][0]["delta"]
-                            function_arguments_chunk = chunk["function_call"]["arguments"]
+                            function_arguments_chunk = chunk["tool_call"]["arguments"]
                             function_arguments += function_arguments_chunk
                             print(function_arguments_chunk, end='', flush=True)
                             function_called = True
