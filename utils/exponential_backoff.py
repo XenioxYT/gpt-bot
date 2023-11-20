@@ -23,7 +23,7 @@ def get_latest_conversation(conversation_id):
     return None
 
 async def exponential_backoff(api_call, conversation_id, message, max_retries=5):
-    models = ["gpt-4-0613", "gpt-4-0613", "gpt-3.5-turbo-16k-0613"]
+    models = ["gpt-4-1106-preview", "gpt-4-1106-preview"]
     model_cycle = itertools.cycle(models)
     
     delay = 1
@@ -40,7 +40,7 @@ async def exponential_backoff(api_call, conversation_id, message, max_retries=5)
         except asyncio.TimeoutError:
             print(f"API call timed out after 10 seconds using model {model}.")
             continue
-        except (requests.RequestException, Exception, openai.error.OpenAIError, openai.error.InvalidRequestError) as e:
+        except (requests.RequestException, Exception, openai.OpenAIError, openai.InvalidRequestError) as e:
             error_msg = str(e)
             print(f"Error message: {error_msg}")
 
@@ -49,17 +49,17 @@ async def exponential_backoff(api_call, conversation_id, message, max_retries=5)
                 print(f"Rate limit reached. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
-            elif "Forbidden: flagged moderation category:" in error_msg:
-                category = re.search(r"Forbidden: flagged moderation category: (.+?)$", error_msg).group(1)
+            elif "flagged moderation category:" in error_msg:
+                category = re.search(r"flagged moderation category: (.+?)$", error_msg).group(1)
                 print(f"Flagged moderation category: {category}. Retrying with next model...")
                 modify_conversation(category, conversation_id)
-                print("Conversation modified. Removed last message from the user.")
+                print("Conversation modified. Removed last few messages from the user.")
 
                 if message.guild:  # Check if the message is in a server
                     await message.delete()
-                    await message.channel.send(f"Your message was ignored because of moderation category: {category}. Please be more respectful in the future.")
+                    await message.channel.send(f"Your message was ignored because of moderation category: {category}. Please be more respectful in the future. The last few messages in the conversation were removed.")
                 else:  # If it's in a DM
-                    await message.channel.send(f"Your message was ignored because of moderation category: {category}. Please be more respectful in the future.")
+                    await message.channel.send(f"Your message was ignored because of moderation category: {category}. Please be more respectful in the future. The last few messages in the conversation were removed.")
                 break
             
             print(f"Error occurred: {e}. Retrying in {delay} seconds...")
@@ -84,12 +84,11 @@ def modify_conversation(category, conversation_id):
         conversation = json.loads(result[0])
         
         if conversation and len(conversation) >= 3:  # Check if there are at least 2 messages
-            conversation[-1]['content'] = f'[removed for {category}]'
-            conversation[-2]['content'] = f'[removed for {category}]'
-            conversation[-3]['content'] = f'[removed for {category}]'
+            conversation[-1]['content'] = f'[flagged for moderation category: {category}]'
+            conversation[-2]['content'] = f'[]'
+            conversation[-3]['content'] = f'[]'
             
             cursor.execute("UPDATE conversations SET conversation = ? WHERE conversation_id = ?", (json.dumps(conversation), conversation_id))
             db_conn.commit()
     
     db_conn.close()
-
