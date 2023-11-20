@@ -120,3 +120,8 @@ utils/__pycache__/get_and_set_timezone.cpython-310.pyc
 utils/__pycache__/wolfram_alpha.cpython-310.pyc
 output.png
 utils/Untitled-1.py
+conversation_times.db
+__pycache__/inactive_channels.cpython-310.pyc
+utils/__pycache__/format_message.cpython-310.pyc
+from openai import OpenAI.py
+from openai import OpenAI.py
