@@ -11,7 +11,7 @@
                     function_arguments_dict = json.loads(sanitized_arguments)
                 except json.JSONDecodeError as e:
                     print(f"JSONDecodeError: {e}")
-                    await update_conversation_and_send_to_discord("The JSON arguments provided were invalid.", function_name, temp_message, conversation, conversation_id, message)
+                    await update_conversation_and_send_to_discord("The JSON arguments provided were invalid.", function_name, temp_message, conversation, conversation_id, message, client)
                     set_bot_busy(conversation_id, False)
                     return
 
@@ -37,7 +37,7 @@
                 function_response = "The code that was executed was: " + code + " and the output is: " + code_interpreter_output
                 print(function_response)
 
-                await update_conversation_and_send_to_discord(function_response, function_name, temp_message, conversation, conversation_id, message)
+                await update_conversation_and_send_to_discord(function_response, function_name, temp_message, conversation, conversation_id, message, client)
                 if host_image_path:
                     await message.channel.send(file=discord.File(host_image_path))
                     os.remove(host_image_path)# Remove the image file from the host system if needed
