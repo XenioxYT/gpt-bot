@@ -325,45 +325,35 @@ class ByteClient(commands.Bot):
                     # print(chunk)
                     # print(chunk.choices[0].delta.content)
                     # check if response is regular response
-                    if chunk.choices[0].delta.content or chunk.choices[0].delta.content == '':
-                        thread_safe_queue.put(chunk.choices[0].delta.content)
-                        threading.Thread(target=threaded_fetch, args=(response, thread_safe_queue, final_response)).start()
-                        completion, temp_message = await send_to_discord(thread_safe_queue, 75, 2000, 0.3, temp_message, final_response, message)
-                        # Instead of appending directly, add to the assistant_responses list
-                        # print(completion)
-                        assistant_responses.append({
-                            "role": "assistant",
-                            "content": completion,
-                        })
-                        # completion = re.sub(r'\[([^\]]+)\]\((http[^)]+)\)', r'[\1](<\2>)', completion)
-                        # print(completion)
-                        try:
-                            await temp_message.edit(content=completion)
-                        except discord.errors.HTTPException:
-                            print("Failed to edit message. Message too long.")
-                            if len(completion) > 4000:
-                                current_date = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-                                filename = f"response-{conversation_id}-{current_date}.txt"
-
-                                async with aiofiles.open(filename, 'w') as file:
-                                    await file.write(completion)
-                                with open(filename, 'rb') as file:
-                                    await message.channel.send(file=discord.File(file, filename=filename))
-                                    print("Sent response to user as a file.")
-                                    os.remove(filename)
-                        # print("Final reponse:" + repr(temp_message.content))
-                    # check if response is function call
                     try:
-                        if chunk.finish_reason == "tool_calls":
-                            if "name" in chunk["choices"][0]["delta"]["function_call"]:
-                                function_name = chunk["choices"][0]["delta"]["function_call"]["name"]
-                            chunk = chunk["choices"][0]["delta"]
-                            function_arguments_chunk = chunk["tool_call"]["arguments"]
-                            function_arguments += function_arguments_chunk
-                            print(function_arguments_chunk, end='', flush=True)
-                            if function_called == False:
-                                await temp_message.edit(content="I'm deciding on which service to access...")
-                            function_called = True
+                        if chunk.choices[0].delta.content or chunk.choices[0].delta.content == '':
+                            thread_safe_queue.put(chunk.choices[0].delta.content)
+                            threading.Thread(target=threaded_fetch, args=(response, thread_safe_queue, final_response)).start()
+                            completion, temp_message = await send_to_discord(thread_safe_queue, 75, 2000, 0.3, temp_message, final_response, message)
+                            # Instead of appending directly, add to the assistant_responses list
+                            # print(completion)
+                            assistant_responses.append({
+                                "role": "assistant",
+                                "content": completion,
+                            })
+                            # completion = re.sub(r'\[([^\]]+)\]\((http[^)]+)\)', r'[\1](<\2>)', completion)
+                            # print(completion)
+                            try:
+                                await temp_message.edit(content=completion)
+                            except discord.errors.HTTPException:
+                                print("Failed to edit message. Message too long.")
+                                if len(completion) > 4000:
+                                    current_date = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                                    filename = f"response-{conversation_id}-{current_date}.txt"
+
+                                    async with aiofiles.open(filename, 'w') as file:
+                                        await file.write(completion)
+                                    with open(filename, 'rb') as file:
+                                        await message.channel.send(file=discord.File(file, filename=filename))
+                                        print("Sent response to user as a file.")
+                                        os.remove(filename)
+                            # print("Final reponse:" + repr(temp_message.content))
+                        # check if response is function call
                     except Exception as e:
                         error_message = f"```{str(e)}```" # encloses the error message in code block
                         error_response = f"Oops! An error occurred while processing your request. Here's the technical stuff: {error_message}\nIf the problem persists, please contact Xeniox."
