@@ -131,8 +131,7 @@ def synchronous_generate_response(model, latest_conversation, client):
         model=model,
         messages=latest_conversation,
         stream=True,
-        allow_fallback=True,
-        # premium=True
+        allow_fallback=True
     )
 
 async def generate_response(conversation, message, conversation_id, client):

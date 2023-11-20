@@ -33,9 +33,8 @@ from utils.image_processing import get_detailed_caption_from_api
 from utils.moderate_message import moderate_content
 from utils.wolfram_alpha import query_wolfram_alpha
 from utils.get_and_set_timezone import set_timezone
-from utils.format_message import format_message
-from inactive_channels import check_channels_for_message, update_last_message_time
 
+from utils.format_message import format_message
 # get from environment variables
 load_dotenv()
 discord_token = os.getenv("DISCORD_TOKEN")
@@ -366,7 +365,7 @@ class ByteClient(commands.Bot):
                             if "name" in chunk["choices"][0]["delta"]["function_call"]:
                                 function_name = chunk["choices"][0]["delta"]["function_call"]["name"]
                             chunk = chunk["choices"][0]["delta"]
-                            function_arguments_chunk = chunk["function_call"]["arguments"]
+                            function_arguments_chunk = chunk["tool_call"]["arguments"]
                             function_arguments += function_arguments_chunk
                             print(function_arguments_chunk, end='', flush=True)
                             if function_called == False:
