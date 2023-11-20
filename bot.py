@@ -106,18 +106,11 @@ class ByteClient(commands.Bot):
             return
         # Use create_task to run response generation concurrently
         asyncio.create_task(self.respond_to_message(message))
-        if not self.check_channels_task or self.check_channels_task.done():
-            # Only create the task if it doesn't exist or if the previous task is done
-            print("Starting check_channels_for_message task")
-            self.check_channels_task = self.loop.create_task(check_channels_for_message(message, self))
 
     async def respond_to_message(self, message):
         conversation_id = message.channel.id
         is_dm = isinstance(message.channel, discord.DMChannel)
         
-        #! Update the last message time
-        print("updating last message time")
-        update_last_message_time(conversation_id)
         
         def delete_conversation(conversation_id):
             c = db_conn.cursor()
