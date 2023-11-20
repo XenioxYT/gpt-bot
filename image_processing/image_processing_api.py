@@ -10,6 +10,9 @@ import requests
 from io import BytesIO
 from PIL import Image
 from flask import Flask, request, jsonify
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
+from msrest.authentication import CognitiveServicesCredentials
 # from utils.exponential_backoff import exponential_backoff
 
 app = Flask(__name__)
@@ -57,10 +60,6 @@ def google_vision_analysis(image_url):
     }
 
     return details
-
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
-from msrest.authentication import CognitiveServicesCredentials
 
 from PIL import Image
 import requests
