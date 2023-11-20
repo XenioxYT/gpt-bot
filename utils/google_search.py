@@ -12,10 +12,13 @@ def google_search(search_term, api_key, cse_id, num_results=5, **kwargs):
         return google_cache[cache_key]
     service = build("customsearch", "v1", developerKey=api_key)
     res = service.cse().list(q=search_term, cx=cse_id, gl="uk", **kwargs).execute()
-    search_results = [
-        {"title": item["title"], "link": item["link"], "snippet": item["snippet"]}
-        for item in res["items"][:num_results]
-    ]
+    if 'items' in res:
+        search_results = [
+            {"title": item["title"], "link": item["link"], "snippet": item["snippet"]}
+            for item in res["items"][:num_results]
+        ]
+    else:
+        search_results = []
 
     # Scraping first 3 URLs
     for idx, result in enumerate(search_results[:2]):
